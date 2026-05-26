@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +28,10 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public void modify(Post post){
+        postRepository.save(post);
+    }
+
     public void update(Post post, String title, String content) {
         post.modify(title, content);
     }
@@ -36,9 +41,7 @@ public class PostService {
     }
 
     public Post findById(Long id) {
-        return postRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("게시글이 존재하지 않습니다.")
-        );
+        return postRepository.findById(id).get();
     }
 
     public void createComment(Post post, String content) {
@@ -55,8 +58,12 @@ public class PostService {
         return post.deleteComment(postComment);
     }
 
-    public void modify(PostComment postComment, String content) {
+    public void modifyComment(PostComment postComment, String content) {
         // 자식 엔티티(PostComment)의 필드 변경 → 더티 체킹에 의해 UPDATE 실행
         postComment.modify(content);
+    }
+
+    public Optional<Post> findLatest() {
+        return postRepository.findFirstByOrderByIdDesc();
     }
 }

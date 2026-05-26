@@ -32,14 +32,19 @@ public class BaseInitData {
     public void work1() {
         if (postService.count() > 0) return;
 
-        Post post1 = postService.create("제목 1", "내용 1");
-        Post post2 = postService.create("제목 1", "내용 1");
-        Post post3 = postService.create("제목 1", "내용 1");
-
+        Post post1 = new Post("제목 1", "내용 1");
         post1.addComment("댓글 1-1");
         post1.addComment("댓글 1-2");
         post1.addComment("댓글 1-3");
+
+        Post post2 = new Post("제목 1", "내용 1");
         post2.addComment("댓글 2-1");
         post2.addComment("댓글 2-2");
+
+        Post post3 = new Post("제목 1", "내용 1");
+
+        postService.modify(post1); // save 호출
+        postService.modify(post2);
+        postService.modify(post3);
     }
 }
