@@ -44,10 +44,10 @@ public class PostService {
         return postRepository.findById(id).get();
     }
 
-    public void createComment(Post post, String content) {
+    public PostComment createComment(Post post, String content) {
         // Post.addComment 내부에서 자식(PostComment)에 this(post)를 세팅
         // cascade=PERSIST 옵션 덕분에 부모 저장 시 자식도 함께 INSERT 가능
-        post.addComment(content);
+        return post.addComment(content);
     }
 
     public boolean deleteComment(Post post, PostComment postComment) {
@@ -65,5 +65,9 @@ public class PostService {
 
     public Optional<Post> findLatest() {
         return postRepository.findFirstByOrderByIdDesc();
+    }
+
+    public void flush(){
+        postRepository.flush();
     }
 }

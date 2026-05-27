@@ -4,8 +4,11 @@ import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.dto.PostCommentDto;
 import com.back.domain.post.postComment.dto.PostCommentModifyRequestBody;
+import com.back.domain.post.postComment.dto.PostCommentWriteRequestBody;
 import com.back.domain.post.postComment.entity.PostComment;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +19,12 @@ import java.util.List;
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
 @RestController
+@Tag(name="ApiV1PostCommentController", description = "API 댓글 컨트롤러")
 public class ApiV1PostCommentController {
     private final PostService postService;
 
     @GetMapping
+    @Operation(summary = "다건 조회")
     public List<PostCommentDto> getItems(
             @PathVariable long postId
     ) {
@@ -33,6 +38,7 @@ public class ApiV1PostCommentController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "단건 조회")
     public PostCommentDto getItem(
             @PathVariable long postId,
             @PathVariable long id
@@ -44,8 +50,20 @@ public class ApiV1PostCommentController {
         return new PostCommentDto(postComment);
     }
 
+    @PostMapping
+    @ResponseBody
+    @Operation(summary = "작성")
+    public RsData<PostCommentDto> write(@Valid @RequestBody PostCommentWriteRequestBody request, @PathVariable long postId){
+        Post post = postService.findById(postId);
+        PostComment postComment = postService.createComment(post, request.content());
+
+        postService.flush();
+        return new RsData<>("201-1", "%d번 댓글이 작성되었습니다.".formatted(postComment.getId()), new PostCommentDto(postComment));
+    }
+
     @Transactional
     @DeleteMapping("/{id}")
+    @Operation(summary = "삭제")
     public RsData<Void> delete(
             @PathVariable long postId,
             @PathVariable long id
@@ -56,11 +74,12 @@ public class ApiV1PostCommentController {
 
         postService.deleteComment(post, postComment);
 
-        return new RsData<>("200-1", "%d 댓글이 삭제 되었습니다.".formatted(id));
+        return new RsData<>("200-1", "%d번 댓글이 삭제되었습니다.".formatted(id));
     }
 
     @Transactional
     @PutMapping("/{id}")
+    @Operation(summary = "수정")
     public RsData<PostCommentDto> modify(@PathVariable long postId,@PathVariable long id, @Valid @RequestBody PostCommentModifyRequestBody reqBody){
         Post post = postService.findById(postId);
 
